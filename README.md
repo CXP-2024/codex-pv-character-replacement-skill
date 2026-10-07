@@ -4,6 +4,8 @@
 
 本仓库整理自一次完整的 galgame OP 角色替换制作：从选角、定妆照、H3 生成，到多轮逐帧返修、1080p 母版和独立彩蛋。重点是可复用的工程约束与失败经验，不是“一句 prompt 自动出整片”的承诺。
 
+也包含后续对话动画的实测经验：按源绘稿区分定格、运镜、口型与身体动作，短 H3 转身配合完整人物分层，检查遮罩污染、口型、全身结构和接缝；避免多轮修图累积纹理与错误脸型。
+
 ## 安装与调用
 
 将 `skills/codex-pv-character-replacement` 整个目录复制到 `~/.codex/skills/`。已有同名目录时先比较、备份，不覆盖自己的改动；原有 `pv-character-replacement` skill 可保留。
@@ -30,6 +32,7 @@
 - [画风与关键帧](skills/codex-pv-character-replacement/references/keyframes.md)：原片作底图、Q版、饰品、小脸。
 - [H3 与 GPU](skills/codex-pv-character-replacement/references/h3-and-queue.md)：两阶段显存、帧映射、拆段、审批、看门狗。
 - [转场与返修](skills/codex-pv-character-replacement/references/transitions.md)：多层入退场、奔跑、定格同步、局部桥接。
+- [对话与完整人物分层](skills/codex-pv-character-replacement/references/dialogue-and-layers.md)：路线选择、短动作、原片直出、嘴层、全局/局部/差值校验及可恢复归档。
 - [文字与 Logo](skills/codex-pv-character-replacement/references/text-and-logos.md)：去字、遮罩迁移、字形动画、淡出返影。
 - [超分与最终装配](skills/codex-pv-character-replacement/references/mastering.md)：原生底片、1080p直通、后叠文字、版本防回退。
 - [失败案例](skills/codex-pv-character-replacement/references/failure-atlas.md)：症状→定位→处理→验收。

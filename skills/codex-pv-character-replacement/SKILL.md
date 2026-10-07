@@ -26,6 +26,10 @@ description: 制作或修复保留原PV画风、分镜、动作和多层转场�
 | 低帧率Q版/交替绘稿 | 原绘稿曝光表 + 对应重绘 | 中间描边、表情与出现次序 |
 | 文字/Logo动画 | 干净动态画面 + 独立透明字层 | 几何、可见度、跨镜尾部 |
 | 远景小脸 | 原片高分辨率局部驱动生成并回填 | 局部时间连续性与前景遮挡 |
+| 对话中确实只有口型运动 | 原绘稿曝光 + 同姿势嘴层 | 嘴形、开闭时序、侧脸轮廓，ROI外无意外变化 |
+| 少量绘稿构成的短转身 | 短H3完整人物动作 + 源曝光表 | 头、躯干、手臂和衣服一起对齐 |
+
+对话片段先分清定格、运镜、口型和身体动作，再选路线。分层与局部替换需满足可可靠拆分和用户要求；头发/布料真实运动用视频生成，不添加手工扰动冒充原表演。详见 [dialogue-and-layers.md](references/dialogue-and-layers.md)。
 
 ## 制作中的关键约束
 
@@ -47,6 +51,7 @@ description: 制作或修复保留原PV画风、分镜、动作和多层转场�
 - 名字/歌词/Logo残影与遮罩：[text-and-logos.md](references/text-and-logos.md)
 - 全分辨率、音画同步、范围外不回退：[mastering.md](references/mastering.md)
 - 对照症状查经验：[failure-atlas.md](references/failure-atlas.md)
+- 对话、短转身、完整人物分层、口型、全局与局部校验、旧资源归档：[dialogue-and-layers.md](references/dialogue-and-layers.md)
 - JSON约定及可执行CPU工具：[contracts.md](references/contracts.md)
 - 历史硬件数据与失效旧方案：[measured-profile.md](references/measured-profile.md)
 
