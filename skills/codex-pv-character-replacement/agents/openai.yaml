@@ -1,4 +1,4 @@
 interface:
   display_name: "PV 角色替换制作"
-  short_description: "保留原PV画风、动作与转场，完成角色替换、局部返修和1080p交付"
+  short_description: "保留原PV表演与画风，按源曝光制作、修复角色并检查背景和合成边界"
   default_prompt: "使用 $codex-pv-character-replacement 按当前项目的原片、角色设定和已确认版本制作或修复角色替换PV，并验证转场连续性。"

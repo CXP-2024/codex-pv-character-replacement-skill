@@ -8,7 +8,7 @@
 python scripts/pv_manifest.py map --source-frames 28 --model-frames 56 --out mapping.json
 ```
 
-`model_to_source[j]`表示第j个模型输入来自哪个源相对帧；`native_to_model[i]`表示第i个原速输出取哪个模型帧。加源start才是A帧。输出不覆盖已有文件。
+`model_to_source[j]`表示第j个模型输入来自哪个源相对帧；`native_to_model[i]`表示第i个原速输出取哪个模型帧。加源start才是A帧。输出不覆盖已有文件。此命令只生成均匀映射候选；不会检测姿态、静止事件或口型。生产需替换为经视觉核对的源事件→模型帧→曝光表，不能凭该命令成功宣称动作已对齐。
 
 ## 生产profile
 

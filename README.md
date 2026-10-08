@@ -4,7 +4,7 @@
 
 本仓库整理自一次完整的 galgame OP 角色替换制作：从选角、定妆照、H3 生成，到多轮逐帧返修、1080p 母版和独立彩蛋。重点是可复用的工程约束与失败经验，不是“一句 prompt 自动出整片”的承诺。
 
-也包含后续对话动画的实测经验：按源绘稿区分定格、运镜、口型与身体动作，短 H3 转身配合完整人物分层，检查遮罩污染、口型、全身结构和接缝；避免多轮修图累积纹理与错误脸型。
+后续逐帧返修暴露出：均匀抽帧不等于动作对齐，局部眼嘴正确不等于脸部结构正确，平均差值低也不能排除背景黑条。现按源事件/曝光组织动作，独立检查制作遮罩与空间接缝，并明确局部拼贴失败时的换路线条件。
 
 ## 安装与调用
 
@@ -32,15 +32,16 @@
 - [画风与关键帧](skills/codex-pv-character-replacement/references/keyframes.md)：原片作底图、Q版、饰品、小脸。
 - [H3 与 GPU](skills/codex-pv-character-replacement/references/h3-and-queue.md)：两阶段显存、帧映射、拆段、审批、看门狗。
 - [转场与返修](skills/codex-pv-character-replacement/references/transitions.md)：多层入退场、奔跑、定格同步、局部桥接。
-- [对话与完整人物分层](skills/codex-pv-character-replacement/references/dialogue-and-layers.md)：路线选择、短动作、原片直出、嘴层、全局/局部/差值校验及可恢复归档。
+- [对话与完整人物分层](skills/codex-pv-character-replacement/references/dialogue-and-layers.md)：源事件、H3选帧、曝光、背景分层及嘴层坐标。
+- [帧级验收](skills/codex-pv-character-replacement/references/quality-control.md)：变化帧覆盖、独立遮罩检查、时空差值及验收证据。
 - [文字与 Logo](skills/codex-pv-character-replacement/references/text-and-logos.md)：去字、遮罩迁移、字形动画、淡出返影。
 - [超分与最终装配](skills/codex-pv-character-replacement/references/mastering.md)：原生底片、1080p直通、后叠文字、版本防回退。
-- [失败案例](skills/codex-pv-character-replacement/references/failure-atlas.md)：症状→定位→处理→验收。
+- [失败案例](skills/codex-pv-character-replacement/references/failure-atlas.md)：人物/表演、合成/漏检、时间轴/工程三组失败复盘与改用方法。
 - [提示词模板](skills/codex-pv-character-replacement/references/prompts.md)、[数据约定与工具](skills/codex-pv-character-replacement/references/contracts.md)、[本机实测经验](skills/codex-pv-character-replacement/references/measured-profile.md)。
 
 ## 工具范围与验证
 
-`scripts/pv_manifest.py` 仅使用 Python 标准库：帧映射、输入哈希冻结/复核、执行批准包技术检查、最终帧台账检查。不会创建审批、提交 GPU 或自动认定美术通过。
+`scripts/pv_manifest.py` 仅使用 Python 标准库：均匀帧映射候选（不检测动作）、输入哈希冻结/复核、执行批准包技术检查、最终帧台账检查。不会创建审批、提交 GPU 或自动认定美术通过。
 
 `scripts/review_board.py` 使用 Pillow：制作原片／新版／50%叠加三栏审阅图；有尺寸差时默认拒绝，需明确允许后才等比缩放。
 
