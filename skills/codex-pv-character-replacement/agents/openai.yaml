@@ -1,4 +1,4 @@
 interface:
-  display_name: "PV 角色替换制作"
-  short_description: "保留原PV表演与画风，按源曝光制作、修复角色并检查背景和合成边界"
-  default_prompt: "使用 $codex-pv-character-replacement 按当前项目的原片、角色设定和已确认版本制作或修复角色替换PV，并验证转场连续性。"
+  display_name: "H3 连续角色替换"
+  short_description: "单镜头一张起点图，选取实际 H3 输出逐段接续并检查人物、动作和接缝"
+  default_prompt: "使用 $codex-pv-character-replacement，按原片画风完成角色替换；单镜头尽量只生图一次，再从检查过的 H3 实际输出帧继续推理。"

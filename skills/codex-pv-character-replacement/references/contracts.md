@@ -1,104 +1,60 @@
-# 项目约定与CPU辅助工具
+# 输入与帧台账工具
 
-工具不连接H3、不创建批准记录，不代替现有项目schema。接入现有项目时写适配层，不为匹配本示例改导演文件。
+辅助工具不生成视频、不认定美术通过，也不替换现有项目格式。路径相对项目根，输出不覆盖既有文件。
 
-## 半开区间与帧映射
+## 映射候选
 
 ```sh
 python scripts/pv_manifest.py map --source-frames 28 --model-frames 56 --out mapping.json
 ```
 
-`model_to_source[j]`表示第j个模型输入来自哪个源相对帧；`native_to_model[i]`表示第i个原速输出取哪个模型帧。加源start才是A帧。输出不覆盖已有文件。此命令只生成均匀映射候选；不会检测姿态、静止事件或口型。生产需替换为经视觉核对的源事件→模型帧→曝光表，不能凭该命令成功宣称动作已对齐。
+`model_to_source` 是模型输入来自的源相对帧；`native_to_model` 是原速输出的模型候选索引。两者是均匀离散取帧，不是光流或动作对齐证明；还需按实际源事件审核。源帧号需要加项目 start。
 
-## 生产profile
+## 冻结与复核
 
-下面是历史本机上限示例，保存为项目相对路径 `profile.json`。新硬件需实测，不自动照搬：
+```sh
+python scripts/pv_manifest.py freeze --root PROJECT --job job.json --profile profile.json --out request.json
+python scripts/pv_manifest.py verify --root PROJECT --packet request.json
+```
+
+`job.json` 的示例结构：
 
 ```json
 {
-  "max_width": 1024, "max_height": 576, "dimension_step": 32,
-  "max_model_frames": 56, "frame_step": 17, "frame_offset": 5,
-  "max_source_frames": 53, "max_references": 3
+  "id": "shot12_part1", "start": 100, "end": 128,
+  "mode": "Ref2VA", "width": 1024, "height": 576, "model_frames": 56,
+  "steps": 20, "seed": 1, "cast": ["target"],
+  "source": "source/segment.mp4", "prompt": "prompt.txt",
+  "references": [{"path": "anchor.png", "role": "first"}]
 }
 ```
 
-## Job与review_request
+`profile.json` 描述**所选配置**的尺寸、步进和上限，例如 `max_width/max_height=1024/576`、`dimension_step=32`、`max_model_frames=56`、`frame_step/frame_offset=17/5`、`max_source_frames=53`、`max_references=3`。这不是后端能力检测；不同 profile 使用各自已验证数值。FL2VA 由工具要求两张端点，角色分别为 first/last，不作为默认接续方法。
+
+冻结包包含 job/profile、源、prompt 与有序参考的 hash。核对实际工作流的 guide 和父帧信息另存链记录。若项目本来有外部批准协议，可使用 `verify --approval approval.json --reviewer NAME` 检查匹配；不为普通制作新增批准环节，不自签他人审核。
+
+## 最终帧台账
 
 ```json
 {
-  "id": "s012a",
-  "start": 100, "end": 128,
-  "mode": "Ref2VA",
-  "width": 1024, "height": 576, "model_frames": 56,
-  "steps": 20, "seed": 12345,
-  "cast": ["target_a"],
-  "source": "shots/s012a/source.mp4",
-  "prompt": "prompts/s012a.txt",
-  "references": [
-    {"path": "cast/target_a.png", "role": "identity"},
-    {"path": "keyframes/s012a/anchor.png", "role": "scene"}
-  ]
-}
-```
-
-文件路径是项目根内相对路径；所有素材须存在。FL2VA恰好两参考，role依次为first、last。无cast不放identity图。此脚本不校验模型是否安装、prompt语义、真实视频解码、关键帧是否确实对应端点，需制作流程另外检查。
-
-```sh
-python scripts/pv_manifest.py freeze --root PROJECT --job job.json --profile profile.json --out review_request.json
-python scripts/pv_manifest.py verify --root PROJECT --packet review_request.json
-```
-
-生成包包含job/profile/prompt/source及有序参考的SHA256、seed、源区间和模型帧数。参数属于job文件hash，改变参考顺序也会失效。输出路径由命令显式指定，验证路径均相对root。
-
-批准由当前协议的真实审核者提供，至少包含：
-`job_id`、`approved`布尔、`reviewer`、`request_sha256`。本工具没有“批准”命令。若当前用户直接授权执行，记录真实用户授权，不能假扮导演；执行批准不等于美术通过。
-
-```sh
-python scripts/pv_manifest.py verify --root PROJECT --packet review_request.json --approval approval.json --reviewer User
-```
-
-哈希只是内容完整性，不是数字签名，也不能证明文件确由某个人写。调用者需从用户消息/既定审核来源确认授权；队列临提交需再次读取，不能缓存旧PASS。
-
-## 最终逐帧台账
-
-```json
-{
-  "start": 100, "end": 101, "fps": [24, 1],
+  "start": 100, "end": 101, "fps": [24000, 1001],
   "frames": [{
-    "frame": 100,
-    "path": "native/A000100.png",
-    "asset_frame": 0,
-    "sha256": "replace-with-real-file-sha256",
-    "kind": "generated",
-    "selected": true,
-    "sr": true
+    "frame": 100, "path": "native/M000.png", "asset_frame": 0,
+    "sha256": "actual-file-hash", "kind": "generated", "selected": true, "sr": false
   }]
 }
 ```
-
-kind为generated、copy或native_layer；后两者sr=false。台账按最终源帧顺序唯一连续，重叠已在上游展开。记录原始素材而非预览图；实际项目可加patch、ROI、文字图层和变换等字段。本工具仅验证覆盖、文件hash和SR路由，不确认图片/视频帧是否真正存在于asset_frame，也不验证选用是否获得美术批准。
 
 ```sh
 python scripts/pv_manifest.py ledger --root PROJECT --file ledger.json
 ```
 
-## 三栏审阅图
+该命令验证范围连续、文件 hash、选用状态与 SR 路由。`kind` 为 generated/copy/native_layer；copy/native_layer 不送 SR。它不解码媒体，也不确认 asset_frame 真的是目标画面；实际项目可扩展图层、接续和源事件字段。
 
-安装Pillow后：
+## 对比图
 
 ```sh
 python scripts/review_board.py source.png edited.png review.png --frame 100
 ```
 
-尺寸不同时默认报错；明确允许相同宽高比缩放可加 `--allow-resize`，避免不知情地拉伸脸。审阅图含顶部标签，因此不能反过来当生产底片。叠图看人体关键点、姿势与占位，不要求目标发型和原发型完全重合。
-
-## 生产系统还需保存
-
-- generation：工具、模型可核实情况、完整prompt、每参考职责/hash、原始输出与采用原因。
-- split_plan：父子ID、范围、锚点、切点理由、重叠/桥段、独立状态。
-- transitions：源起止、层级、几何/可见度测量与置信度。
-- result：GPU/CPU时间、整卡显存温度采样、失败阶段、raw/native路径、copy诊断。
-- selection：有效审核依据、采用/退回/占位、替代关系。
-- delivery：baseline hash、每帧来源、SR/后叠层、编码、fps/PTS、音频、检查范围与用户状态。
-
-这些记录按项目规模维护；不能仅为了形式创建无人使用的空表。
+依赖 Pillow，输出原片/新版/叠加三栏。尺寸不同默认报错；仅确认同宽高比缩放时加 `--allow-resize`。含标签的审阅图不可反用为生产底片。
