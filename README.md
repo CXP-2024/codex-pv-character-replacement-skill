@@ -21,6 +21,10 @@
 - [工具约定](skills/codex-pv-character-replacement/references/contracts.md)：映射候选、输入冻结与帧台账。
 - [实测配置](skills/codex-pv-character-replacement/references/measured-profile.md)：本次 16GB GPU 两种配置的适用边界。
 
+## ComfyUI 工作流
+
+[comfyui/](comfyui/README.md) 提供 H3 Ref2VA 工作流、两阶段缓存节点、模型清单和分段接续脚本。不含模型权重，模型约 34 GB，由脚本下载。
+
 ## 辅助工具
 
 `pv_manifest.py` 使用 Python 标准库，提供均匀映射候选、hash 冻结/复核和台账检查；不会提交 GPU 或认定美术通过。`review_board.py` 依赖 Pillow，生成原片/新版/叠加审阅图。现有脚本接口保留，不要求生产项目迁移格式。

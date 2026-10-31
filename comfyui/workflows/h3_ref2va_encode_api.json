@@ -1,0 +1,99 @@
+{
+  "13": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "type": "minimax",
+      "device": "default"
+    }
+  },
+  "11": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+    }
+  },
+  "200": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "anchor.png"
+    }
+  },
+  "210": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "source_clip.mp4"
+    }
+  },
+  "211": {
+    "class_type": "GetVideoComponents",
+    "inputs": {
+      "video": [
+        "210",
+        0
+      ]
+    }
+  },
+  "104": {
+    "class_type": "MiniMaxH3ReferenceToVideo",
+    "inputs": {
+      "clip": [
+        "13",
+        0
+      ],
+      "vae": [
+        "11",
+        0
+      ],
+      "prompt": "REPLACE: Ref2VA prompt, see README.md",
+      "width": 1024,
+      "height": 576,
+      "length": 39,
+      "ref_image_size": "match",
+      "ref_images.ref_image_0": [
+        "200",
+        0
+      ],
+      "ref_videos.ref_video_0": [
+        "211",
+        0
+      ]
+    }
+  },
+  "301": {
+    "class_type": "SenrenSaveReferenceCache",
+    "inputs": {
+      "conditioning": [
+        "303",
+        0
+      ],
+      "latent": [
+        "104",
+        1
+      ],
+      "filename_prefix": "h3_ref2va/cache"
+    }
+  },
+  "303": {
+    "class_type": "MiniMaxH3AddGuide",
+    "inputs": {
+      "positive": [
+        "104",
+        0
+      ],
+      "latent": [
+        "104",
+        1
+      ],
+      "vae": [
+        "11",
+        0
+      ],
+      "image": [
+        "200",
+        0
+      ],
+      "frame_idx": 0
+    }
+  }
+}

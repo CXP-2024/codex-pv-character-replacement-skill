@@ -1,0 +1,30 @@
+[
+  {
+    "repo": "Comfy-Org/MiniMax-H3",
+    "revision": "bf92c4091e333e69b8ca1998e0a669f15cb0832b",
+    "file": "vae/minimax_h3_audio_vae_fp32.safetensors",
+    "destination": "vae/minimax_h3_audio_vae_fp32.safetensors",
+    "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
+  },
+  {
+    "repo": "Comfy-Org/MiniMax-H3",
+    "revision": "bf92c4091e333e69b8ca1998e0a669f15cb0832b",
+    "file": "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "destination": "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
+  },
+  {
+    "repo": "Comfy-Org/MiniMax-H3",
+    "revision": "bf92c4091e333e69b8ca1998e0a669f15cb0832b",
+    "file": "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+    "destination": "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+    "sha256": "52a2c8c73583c86e4f41cdcce3a6ad0ea562987bc0bf3d60a0cef5f5c8e60c0e"
+  },
+  {
+    "repo": "DmitryDB/MiniMax-H3-ComfyUI-Quants",
+    "revision": "06aba4816457400d1dcb12ffd77e37499c8116b1",
+    "file": "Ref2VA/MiniMax-H3_Ref2VA-NVFP4-HQ.safetensors",
+    "destination": "diffusion_models/MiniMax-H3_Ref2VA-NVFP4-HQ.safetensors",
+    "sha256": "10b4892c0aeb951666c0e8439ebc13d6360d2bfc52457244f37f9b09a3731ee3"
+  }
+]
