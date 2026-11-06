@@ -2,6 +2,10 @@
 
 保留原片画风、分镜、动作和光效的动画角色替换方法。核心是：**一个镜头尽量一张 ImgGen 起点图，再选择已检查的实际 H3 输出帧逐段接续。** 技术拆段不另起一套人物；仅在切镜出现新内容或 H3 确实失效时重新锚定。接续仍需审图，不保证自动逐帧还原。
 
+## 交流群
+
+QQ 群：**1130507071**，欢迎来做技术交流。群里聊 AI 视频、AI 建模、AI 绘画等内容，主打 agent base（dsh、Codex、Claude Code）+ 本地模型。
+
 ## 安装与使用
 
 将 `skills/codex-pv-character-replacement` 复制到 `~/.codex/skills/`；更新前保留自己的本地修改。
@@ -34,7 +38,3 @@ python -m unittest discover -s tests -v
 ```
 
 需自行提供图像生成工具与 H3 后端。仓库不包含模型、原片、角色图、字体、音轨、凭据或本机服务配置。文档与脚本采用 [MIT](LICENSE)，第三方素材各有其许可。
-
-## 交流群
-
-QQ 群：**1130507071**，欢迎来做技术交流。群里聊 AI 视频、AI 建模、AI 绘画等内容，主打 agent base（dsh、Codex、Claude Code）+ 本地模型。
