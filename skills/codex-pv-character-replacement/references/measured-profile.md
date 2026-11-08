@@ -35,6 +35,36 @@ One Last Token 全片约 100 个镜头，PRO 6000、本机 5080 和两台 H20 �
 
 720P 输出用 Real-ESRGAN anime 6B 超分到 1080P 约 1.5 秒/帧，原生 1088 的段不用超分。工具链在 `H:/MV_making/research/one_last_token/production/cos/h3/`：`prepare.py`、`run_olt.py`、`watch.py`、`next_review.py`、`auto_trim.py`（尾部静止）、`stabilize.py`（链式推拉）、`shake_paths.py`（手持晃动）、`sr/batch.py`（超分）、`build_h3.py`（合成）。
 
+### PRO 6000 提速实测（2026-11-08）
+
+同一段 72 帧（2×39 链接续）、1920×1088、8 步、同一 seed 和起点图。打分：帧变化与原片的相关度（动作跟随）、运镜轨迹误差、发色饱和度，再加全分辨率脸部细节对照。
+
+逐步 profile（torch.profiler 抓一步）：权重全部常驻显存，CPU↔GPU 搬运为零。一个稀疏步约 4.4 秒，其中注意力约 48%，NVFP4 矩阵乘约 30%，激活量化和逐元素运算约 20%。`start_percent` 之前的稠密步每步约 8.5 秒，默认设置下前 2 步稠密，占采样时间的 40%。
+
+| 配置（热模型，单段 39 帧墙钟） | 每段 | 动作跟随 |
+|---|---|---|
+| 默认：ComfyUI 同时存 mp4 和全部 PNG，稀疏 tau 1.3、20% 之后才稀疏 | 66 s | 0.68 |
+| 只同步存子段要用的帧，mp4 和其余 PNG 后台写 | 54 s | 0.69 |
+| 再加常驻显存 + 稀疏 tau 2.0、从第一步就稀疏 | **44 s** | 0.72 |
+
+44 秒里约 37 秒采样、7 秒编码，解码和存图约 1 秒。开机后第一段（冷启动加载）约 93 秒，之后追加的任务只要不重启 ComfyUI，都直接用热模型。
+
+做法：
+- ComfyUI 启动参数加 `--gpu-only --disable-dynamic-vram`（保留 `--fast fp16_accumulation`）。动态显存下一改稀疏参数，每段就重新初始化模型约 25 秒、再重载文本编码器约 34 秒。
+- BlockSparseAttention：`selection.tau` 2.0、`start_percent` 0.0。tau 越高越稀疏（1.0 约保留 16% 的 key 块，1.5 约 7%，2.0 约 2.7%）。
+- 存图用仓库 `comfyui/custom_nodes/wn_fast.py` 的 `WNSaveFast`：先存子段接续要用的帧，mp4（libx264 crf 14、BT.709）和其余 PNG 在后台写。`result.json` 等 mp4 写完再写。
+- 采样步数：20/12/8 步动作和画面几乎一样（每 2 段 324/174/132 秒），默认 8 步。
+
+试过但没用：
+- Comfy-Org ref2v turbo 4 步 LoRA（v0.1）：4/6 步每 2 段 90/112 秒，但动作跟随掉到 0.35/0.28，截图看不出，连起来看不跟原片。
+- TeaCache（阈值 0.15/0.30）：8 步时只能省约 1 步，还会触发文本编码器重载；动作跟随 0.52/0.55。
+- 完整 `--fast`：和 `--fast fp16_accumulation` 一样快。
+- `TorchCompileModel`：报 `'torch.Stream' object has no attribute 'cuda_stream'`。
+- 同卡开两个 ComfyUI 实例并行跑两条链：每段 92 秒，等效 46 秒，GPU 已满载，没有收益。
+- 镜像本来就是 torch 2.14 + cu130、comfy-kitchen CUDA 后端，社区说的这类升级已经生效。降分辨率或单段 121 帧会更快，但违反 1080P 和 ≤39 帧规则。
+
+只测了一个镜头、一个 seed；1920×1568 等更大画布和快动作镜头没单独测，正式用前先跑一段检查动作。
+
 ### 段长与耗时
 
 采样耗时随模型帧数超线性增长（注意力约为帧数平方）。实测每步耗时：192 帧约 111 秒，73 帧约 13.5 秒，帧数 2.6 倍，耗时 8 倍以上。所以长镜头要切成短段：用户要求越短越稳，本项目每段上限 39 个源帧（模型帧 22 或 39），一个镜头切成多段依次接续，见 [continuous-h3.md](continuous-h3.md) 的“分段接续”。不要把整个长镜头一次提交（例如 192 帧一次跑约 40 分钟，而且一致性更差）。

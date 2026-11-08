@@ -6,7 +6,7 @@ R=Path(os.environ.get('H3_ROOT','/opt/h3')); C=R/'ComfyUI'; P=R/'chain'; P.mkdir
 s=requests.Session();s.trust_env=False;base=os.environ.get('COMFY_URL','http://127.0.0.1:8188')
 def write(p,o):p.write_text(json.dumps(o,indent=2))
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-def submit(g,d,stage):
+def submit(g,d,stage,poll=3):
  write(d/(stage+'_workflow.json'),g)
  r=s.post(base+'/prompt',json={'prompt':g,'client_id':d.name+'_'+stage},timeout=60)
  if not r.ok:raise RuntimeError(r.text)
@@ -18,7 +18,7 @@ def submit(g,d,stage):
    write(d/(stage+'_history.json'),h)
    if h.get('status',{}).get('status_str')=='error':raise RuntimeError(str(h['status']))
    if h.get('status',{}).get('completed'):return h,time.monotonic()-t
-  time.sleep(3)
+  time.sleep(poll)
  s.post(base+'/interrupt',timeout=30)
  raise TimeoutError(pid)
 q=s.get(base+'/queue',timeout=30).json();assert not q['queue_running'] and not q['queue_pending']
@@ -41,9 +41,11 @@ while True:
  d=P/j['id'];d.mkdir(exist_ok=True)
  if j.get('parent'):
   # Picture 1 = the parent's actual lossless H3 frame at parent_model_frame
-  frames=sorted((C/'output/chain_lossless'/j['parent']).glob('*.png'))
-  shutil.copy2(frames[j['parent_model_frame']],R/'chain_inputs'/f"{j['id']}.png")
-  write(d/'guide_source.json',{'parent':j['parent'],'parent_model_frame':j['parent_model_frame'],'file':frames[j['parent_model_frame']].name})
+  # look the frame up by name: lean parents write their other PNGs in the background
+  src=C/'output/chain_lossless'/j['parent']/f"frame_{j['parent_model_frame']+1:05d}_.png"
+  if not src.exists():src=sorted((C/'output/chain_lossless'/j['parent']).glob('*.png'))[j['parent_model_frame']]
+  shutil.copy2(src,R/'chain_inputs'/f"{j['id']}.png")
+  write(d/'guide_source.json',{'parent':j['parent'],'parent_model_frame':j['parent_model_frame'],'file':src.name})
  samples=[];stop=threading.Event()
  def monitor():
   while not stop.is_set():
@@ -69,12 +71,24 @@ while True:
    g[str(500+k)]={'class_type':'LoadImage','inputs':{'image':fn}}
    g[str(600+k)]={'class_type':'MiniMaxH3AddGuide','inputs':{'positive':g['301']['inputs']['conditioning'],'latent':['104',1],'vae':['11',0],'image':[str(500+k),0],'frame_idx':e['frame']}}
    g['301']['inputs']['conditioning']=[str(600+k),0]
-  h,enc=submit(g,d,'encode');cache=Path(h['outputs']['301']['cache_files'][0]);target=C/'models/embeddings'/cache.name;shutil.copy2(cache,target)
+  poll=j.get('poll',3);h,enc=submit(g,d,'encode',poll);cache=Path(h['outputs']['301']['cache_files'][0]);target=C/'models/embeddings'/cache.name;shutil.copy2(cache,target)
   write(d/'cache_binding.json',{'cache_sha256':sha(target),'encode_workflow_sha256':sha(d/'encode_workflow.json'),'gpu':gpu})
   g=json.loads((R/'workflows/H3_Ref2VA_Sample_API.json').read_text())
   g['302']['inputs']['cache_name']=target.name;g['15']['inputs']['noise_seed']=j['seed'];g['92']['inputs']['filename_prefix']='chain/'+j['id']
   g['93']={'class_type':'SaveImage','inputs':{'images':['10',0],'filename_prefix':'chain_lossless/'+j['id']+'/frame'}}
-  h,sampling=submit(g,d,'sample')
+  # optional speed settings (96GB card, see README "大显存提速"): sparse attention and lean saving
+  if j.get('sparse'):g['300']['inputs'].update(j['sparse'])
+  if j.get('lean'):
+   g.pop('91',None);g.pop('92',None)
+   keep=sorted({j['length']-1}|{c['parent_model_frame'] for c in JOBS if c.get('parent')==j['id']})
+   g['93']={'class_type':'WNSaveFast','inputs':{'images':['10',0],'filename_prefix':'chain_lossless/'+j['id']+'/frame','keep':','.join(map(str,keep)),'mp4_path':str(d/'raw.mp4'),'compress_level':1,'save_rest':True}}
+  h,sampling=submit(g,d,'sample',poll)
+  if j.get('lean'):
+   t0=time.monotonic()
+   while not (d/'raw.mp4').exists() and time.monotonic()-t0<600:time.sleep(0.5)
+   probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-of','json',str(d/'raw.mp4')]))
+   write(d/'result.json',{'status':'generated_qc_pending','lean':True,'encode_seconds':enc,'sample_decode_seconds':sampling,'peak_gpu_mib':max(int(x['gpu'].split(',')[0]) for x in samples),'gpu':gpu,'raw_sha256':sha(d/'raw.mp4'),'probe':probe})
+   print('DONE',j['id'],enc,sampling,flush=True);continue
   videos=list((C/'output/chain').glob(j['id']+'*.mp4'));assert len(videos)==1,videos
   shutil.copy2(videos[0],d/'raw.mp4')
   pngs=sorted((C/'output/chain_lossless'/j['id']).glob('*.png'));assert len(pngs)==j['length']
@@ -90,7 +104,8 @@ while True:
   print('DONE',j['id'],enc,sampling,flush=True)
  except Exception:
   (d/'error.txt').write_text(traceback.format_exc());print('FAILED',j['id'],traceback.format_exc(),flush=True)
-  s.post(base+'/free',json={'unload_models':True,'free_memory':True},timeout=60)
+  try:s.post(base+'/free',json={'unload_models':True,'free_memory':True},timeout=60)
+  except Exception:pass  # ComfyUI may be restarting; keep the runner alive
  finally:
   stop.set();th.join();write(d/'gpu_samples.json',samples)
 lock.rename(R/('chain_gpu.completed_'+str(int(time.time()))+'.json'))

@@ -23,11 +23,11 @@ QQ 群：**1130507071**，欢迎来做技术交流。群里聊 AI 视频、AI �
 - [H3 接续](skills/codex-pv-character-replacement/references/continuous-h3.md)：实际父帧、源时间、参考职责、重锚条件与后端执行。
 - [检查与交付](skills/codex-pv-character-replacement/references/review-and-delivery.md)：平色碎纹、动作/光效、去字、Logo、音轨和版本回填。
 - [工具约定](skills/codex-pv-character-replacement/references/contracts.md)：映射候选、输入冻结与帧台账。
-- [实测配置](skills/codex-pv-character-replacement/references/measured-profile.md)：本次 16GB GPU 两种配置的适用边界。
+- [实测配置](skills/codex-pv-character-replacement/references/measured-profile.md)：16GB GPU 两种配置的适用边界，96GB 卡的常驻与提速实测。
 
 ## ComfyUI 工作流
 
-[comfyui/](comfyui/README.md) 提供 H3 Ref2VA 工作流、两阶段缓存节点、模型清单和分段接续脚本。不含模型权重，模型约 34 GB，由脚本下载。
+[comfyui/](comfyui/README.md) 提供 H3 Ref2VA 工作流、两阶段缓存节点、提速存图节点、模型清单和分段接续脚本。96GB 卡的提速配置（单段 39 帧 66→44 秒）见其中“大显存提速”。不含模型权重，模型约 34 GB，由脚本下载。
 
 ## 辅助工具
 
