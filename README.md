@@ -17,6 +17,8 @@ QQ 群：**1130507071**，欢迎来做技术交流。群里聊 AI 视频、AI �
 
 将 `skills/codex-pv-character-replacement` 复制到 `~/.codex/skills/`；更新前保留自己的本地修改。
 
+GPT / Codex 出的二次元关键帧带鱼鳞纹，要配合去噪 skill [gpt-anime-denoise](https://github.com/CXP-2024/gpt-anime-denoise) 使用：把那个仓库也放进 skills 目录，每张出图都先去噪再进 H3。
+
 ```text
 使用 $codex-pv-character-replacement，继续当前 PV 角色替换。
 沿用当前选用版本；先锁定角色规格书和镜头测量表，关键帧先给我审静帧；每镜头一张生图起点，以实际 H3 输出续跑，检查与原片的动作和接缝。
@@ -30,7 +32,7 @@ QQ 群：**1130507071**，欢迎来做技术交流。群里聊 AI 视频、AI �
 - [开工前锁定](skills/codex-pv-character-replacement/references/preproduction.md)：规格书和测量表模板、生产参数实测、参考图按比例截、H3 做不到的镜头清单、返修收集方式。
 - [踩坑清单](skills/codex-pv-character-replacement/references/pitfalls.md)：按"现象 → 原因 → 做法"查。
 - [H3 接续](skills/codex-pv-character-replacement/references/continuous-h3.md)：实际父帧、源时间、参考职责、重锚条件与后端执行。
-- [检查与交付](skills/codex-pv-character-replacement/references/review-and-delivery.md)：平色碎纹、动作/光效、去字、Logo、音轨和版本回填。
+- [检查与交付](skills/codex-pv-character-replacement/references/review-and-delivery.md)：去鱼鳞纹（[gpt-anime-denoise](https://github.com/CXP-2024/gpt-anime-denoise)）、动作/光效、去字、Logo、音轨和版本回填。
 - [工具约定](skills/codex-pv-character-replacement/references/contracts.md)：映射候选、输入冻结与帧台账。
 - [实测配置](skills/codex-pv-character-replacement/references/measured-profile.md)：16GB GPU 两种配置的适用边界，96GB 卡的常驻与提速实测。
 

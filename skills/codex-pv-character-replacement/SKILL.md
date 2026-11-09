@@ -36,7 +36,7 @@ description: 制作或返修保留原片画风、分镜和动作的动画角色�
    - 原画节奏和定格区间。
    - H3 难点标记。标了的镜头事先和用户定做法。
 3. **生产参数**：
-   - 出图后端和必跑的去噪。
+   - 出图后端和必跑的去噪。GPT / Codex 图一律过 [gpt-anime-denoise](https://github.com/CXP-2024/gpt-anime-denoise)。
    - 按脸的大小定分辨率。
    - 段长、步数。
    - 设备分工和云机用量上限。
@@ -112,7 +112,7 @@ description: 制作或返修保留原片画风、分镜和动作的动画角色�
 
 - 开工前三张表的模板、按比例截参考图、H3 做不到的镜头清单、返修收集方式：[preproduction.md](references/preproduction.md)。
 - 启动/续跑 H3、提示词、遮挡后恢复和失败重锚：[continuous-h3.md](references/continuous-h3.md)。
-- 平色碎纹、逐帧审图、去字、Logo、音轨与版本回填：[review-and-delivery.md](references/review-and-delivery.md)。
+- 去鱼鳞纹（gpt-anime-denoise）、逐帧审图、去字、Logo、音轨与版本回填：[review-and-delivery.md](references/review-and-delivery.md)。
 - 输入冻结、映射候选和台账校验工具：[contracts.md](references/contracts.md)。沿用现有项目格式，不强制迁移。
 - 开工前和遇到异常现象时：[pitfalls.md](references/pitfalls.md)，按现象查原因和做法。
 - 配置显存和后端时：[measured-profile.md](references/measured-profile.md)。历史实测是候选配置，不是通用上限。96GB 卡的提速配置（单段 39 帧 66→44 秒）在其中"PRO 6000 提速实测"。
