@@ -1,4 +1,4 @@
 interface:
   display_name: "H3 连续角色替换"
-  short_description: "单镜头一张起点图，选取实际 H3 输出逐段接续并检查人物、动作和接缝"
-  default_prompt: "使用 $codex-pv-character-replacement，按原片画风完成角色替换；单镜头尽量只生图一次，再从检查过的 H3 实际输出帧继续推理。"
+  short_description: "开工前锁定规格书和测量表，每镜四道关；单镜头一张起点图，选取实际 H3 输出逐段接续"
+  default_prompt: "使用 $codex-pv-character-replacement，按原片画风完成角色替换；先和我锁定角色规格书、镜头测量表和生产参数，每个镜头的关键帧先给我审静帧再跑 H3；单镜头尽量只生图一次，再从检查过的 H3 实际输出帧继续推理。"
