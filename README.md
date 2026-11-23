@@ -22,6 +22,17 @@
 - 有人物的静止段先连续跑，不直接用静帧。
 - 第 4 关从五项指标扩到八项。
 
+一支 69 秒的十人换角 MAD（交付 7 版）：关键帧被打回 18 次，六成是没放大原片就动笔；看成片后的问题大头出在"是不是同一张画"没测：
+- 同一张画的数码缩放被当成切镜，两边各起一张关键帧，画面在缩放处突变；
+- 切换处一两帧的单独画面（甩进来的特写、过肩镜头）被直接硬切；
+- 保留原片的范围边界偏了 1–5 帧，漏进了原片人物；
+- 起点放在镜头中间、前向倒放各一条时，倒放链穿过单向拉远，运镜变成了来回。
+
+因此做了这些改动：
+- 切镜点改用特征匹配判断"是不是同一张画"，开工时列出每个切换点 ±4 帧的单帧插入和整帧效果（闪白、黑白闪、淡出淡入、甩镜模糊）。
+- 单向拉远、平移的镜头起点放在近的一端，只跑一条前向链；一张原画中途缩放也只用一张关键帧。
+- 交付前每一版都跑全片检查：原片帧审计、全片每 4 帧对照、逐镜运镜方向对比。
+
 ## 交流群
 
 QQ 群：**1130507071**，欢迎来做技术交流。群里聊 AI 视频、AI 建模、AI 绘画等内容，主打 agent base（dsh、Codex、Claude Code）+ 本地模型。
@@ -45,7 +56,7 @@ GPT / Codex 出的二次元关键帧带鱼鳞纹，要配合去噪 skill [gpt-an
 - [开工前锁定](skills/codex-pv-character-replacement/references/preproduction.md)：规格书和测量表模板、生产参数实测、参考图按比例截、H3 做不到的镜头清单、返修收集方式。
 - [踩坑清单](skills/codex-pv-character-replacement/references/pitfalls.md)：按"现象 → 原因 → 做法"查。
 - [H3 接续](skills/codex-pv-character-replacement/references/continuous-h3.md)：实际父帧、源时间、参考职责、重锚条件与后端执行。
-- [检查与交付](skills/codex-pv-character-replacement/references/review-and-delivery.md)：去鱼鳞纹（[gpt-anime-denoise](https://github.com/CXP-2024/gpt-anime-denoise)）、动作/光效、去字、Logo、音轨和版本回填。
+- [检查与交付](skills/codex-pv-character-replacement/references/review-and-delivery.md)：去鱼鳞纹（[gpt-anime-denoise](https://github.com/CXP-2024/gpt-anime-denoise)）、动作/光效、去字、Logo、音轨、版本回填，交付前全片检查和整帧效果清单。
 - [工具约定](skills/codex-pv-character-replacement/references/contracts.md)：映射候选、输入冻结与帧台账。
 - [实测配置](skills/codex-pv-character-replacement/references/measured-profile.md)：16GB GPU 两种配置的适用边界，96GB 卡的常驻与提速实测。
 
@@ -55,7 +66,7 @@ GPT / Codex 出的二次元关键帧带鱼鳞纹，要配合去噪 skill [gpt-an
 
 ## 辅助工具
 
-`pv_manifest.py` 使用 Python 标准库，提供均匀映射候选、hash 冻结/复核和台账检查；不会提交 GPU 或认定美术通过。`review_board.py` 依赖 Pillow，生成原片/新版/叠加审阅图。现有脚本接口保留，不要求生产项目迁移格式。
+`pv_manifest.py` 使用 Python 标准库，提供均匀映射候选、hash 冻结/复核和台账检查；不会提交 GPU 或认定美术通过。`review_board.py` 依赖 Pillow，生成原片/新版/叠加审阅图。`cut_audit.py` 测每个分镜点前后是不是同一张画、列出成片多出来的跳变、出原片对照联系图；`camtrack.py` 逐帧量原片和成片的缩放与位移方向。这两个依赖 numpy、opencv-python、Pillow 和 ffmpeg（不在 PATH 上时用 `--ffmpeg` 或环境变量 `FFMPEG` 指定）。现有脚本接口保留，不要求生产项目迁移格式。
 
 ```sh
 python -m unittest discover -s tests -v
